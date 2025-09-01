@@ -43,7 +43,7 @@ class ChatProcessor {
             {
                 method: 'POST',
                 headers: {
-                    Authorization: 'Bearer token example',
+                    Authorization: `Bearer ${process.env.OPEN_ROUTER_API_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({

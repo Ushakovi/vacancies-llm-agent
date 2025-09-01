@@ -3,7 +3,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 
 class McpClient {
     private client: Client | undefined = undefined;
-    private serverUrl: string = 'http://localhost:8080/mcp';
+    private serverUrl: string = 'http://localhost:8081/mcp';
 
     constructor() {}
 
