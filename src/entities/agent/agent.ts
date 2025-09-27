@@ -1,5 +1,5 @@
-import { McpClient } from './client';
-import { ChatProcessor } from './chats/openRouter';
+import { McpClient } from '../mcpClient/client';
+import { ChatProcessor } from '../chats/local';
 
 class AgentAI {
     private mcpClient: McpClient | undefined = undefined;
@@ -19,6 +19,14 @@ class AgentAI {
 
     public sendMessage = async (message: string) => {
         return this.chatProcessor?.sendMessage(message, this.mcpClient);
+    };
+
+    public clearMessages = () => {
+        return this.chatProcessor?.clearMessages();
+    };
+
+    public subscribe = (callback: any) => {
+        return this.chatProcessor?.subscribe(callback);
     };
 }
 

@@ -1,0 +1,39 @@
+.messageWrapper {
+    border: 2px dotted grey;
+    overflow: scroll;
+    margin-bottom: 75px;
+}
+
+.chatWrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 12px;
+    background-color: #fff;
+    border-top: 2px solid grey;
+}
+
+.chatInput {
+    width: 50%;
+    height: 30px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding-inline: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    &::placeholder {
+        font-size: 12px;
+    }
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+}
+.chatButton {
+    height: 30px;
+}

@@ -1,9 +1,11 @@
-import { McpClient } from '../client';
+import { McpClient } from '../../mcpClient';
 
 class ChatProcessor {
+    private llmUrl: string = 'http://localhost:11434/api/chat';
     private systemPrompt: string = '';
     private tools: any[] = [];
     private messages: any[] = [];
+    private subscribers: any[] = [];
 
     constructor(systemPrompt: string, tools: any[]) {
         this.systemPrompt = systemPrompt;
@@ -26,37 +28,39 @@ class ChatProcessor {
     public addNewMessage = (message: any) => {
         this.messages.push(message);
 
-        const messageLogElem = document.querySelector('#messages-log');
+        this.subscribers.forEach((subscriber) => {
+            subscriber(message);
+        });
+    };
 
-        if (messageLogElem) {
-            let outerString = '';
-            this.messages.forEach((message) => {
-                outerString += `<p>${message.content}</p>`;
-            });
-            messageLogElem.outerHTML = `<div id='messages-log'>${outerString}</div>`;
-        }
+    public clearMessages = () => {
+        this.messages = [];
+
+        this.messages.push({
+            role: 'user',
+            content: this.systemPrompt,
+        });
+    };
+
+    public subscribe = (callback: any) => {
+        this.subscribers.push(callback);
     };
 
     public fetchToModel = async () => {
-        const response = await fetch(
-            'https://openrouter.ai/api/v1/chat/completions',
-            {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${process.env.OPEN_ROUTER_API_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: 'meta-llama/llama-4-maverick:free',
-                    messages: this.messages,
-                    tools: this.tools,
-                }),
-            }
-        );
+        const response = await fetch(this.llmUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'qwen3:8b',
+                messages: this.messages,
+                tools: this.tools,
+                stream: false,
+            }),
+        });
 
         const result = await response.json();
 
-        return result.choices[0];
+        return result;
     };
 
     public sendMessage = async (
@@ -75,7 +79,7 @@ class ChatProcessor {
             for (const tool of result.message.tool_calls) {
                 const output = await client?.callTool(
                     tool.function.name,
-                    JSON.parse(tool.function.arguments)
+                    tool.function.arguments
                 );
 
                 if (output) {
