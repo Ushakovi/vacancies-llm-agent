@@ -10,11 +10,6 @@ class ChatProcessor {
     constructor(systemPrompt: string, tools: any[]) {
         this.systemPrompt = systemPrompt;
 
-        this.messages.push({
-            role: 'user',
-            content: this.systemPrompt,
-        });
-
         this.tools = tools.map((tool) => ({
             type: 'function',
             function: {
