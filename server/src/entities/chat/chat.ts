@@ -1,4 +1,4 @@
-import { McpClient } from '../../mcpClient';
+import { McpClient } from '../mcpClient';
 
 class ChatProcessor {
     private llmUrl: string = 'http://localhost:11434/api/chat';
@@ -63,6 +63,35 @@ class ChatProcessor {
         return result;
     };
 
+    private answerWithTools = async (
+        answer: any,
+        client: McpClient | undefined
+    ): Promise<any> => {
+        for (const tool of answer.message.tool_calls) {
+            const output = await client?.callTool(
+                tool.function.name,
+                tool.function.arguments
+            );
+
+            if (output) {
+                const arrayResult = output.content as any[];
+                this.addNewMessage({
+                    role: 'tool',
+                    content: arrayResult[0].text,
+                });
+            }
+        }
+
+        const nextAnswer = await this.fetchToModel();
+        this.addNewMessage(nextAnswer.message);
+
+        if (nextAnswer.message.tool_calls) {
+            return this.answerWithTools(nextAnswer, client);
+        }
+
+        return nextAnswer;
+    };
+
     public sendMessage = async (
         message: string,
         client: McpClient | undefined
@@ -72,32 +101,16 @@ class ChatProcessor {
             content: message,
         });
 
-        const result = await this.fetchToModel();
-        this.addNewMessage(result.message);
+        const answer = await this.fetchToModel();
+        this.addNewMessage(answer.message);
 
-        if (result.message.tool_calls) {
-            for (const tool of result.message.tool_calls) {
-                const output = await client?.callTool(
-                    tool.function.name,
-                    tool.function.arguments
-                );
-
-                if (output) {
-                    const arrayResult = output.content as any[];
-                    this.addNewMessage({
-                        role: 'system',
-                        content: arrayResult[0].text,
-                    });
-                }
-            }
-
-            const finalResult = await this.fetchToModel();
-            this.addNewMessage(finalResult.message);
+        if (answer.message.tool_calls) {
+            const finalResult = await this.answerWithTools(answer, client);
 
             return finalResult.message.content;
-        } else {
-            this.addNewMessage(result.message);
         }
+
+        return answer.message.content;
     };
 }
 

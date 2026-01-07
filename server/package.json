@@ -1,0 +1,26 @@
+{
+    "name": "vacancies-llm-agent-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "nodemon ./src/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.17.4",
+        "cors": "^2.8.5",
+        "express": "^5.2.1"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
+        "@types/node": "^24.3.0",
+        "nodemon": "^3.1.11",
+        "ts-node": "^10.9.2"
+    },
+    "packageManager": "pnpm@10.26.1"
+}

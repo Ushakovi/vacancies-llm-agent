@@ -1,5 +1,5 @@
 import { McpClient } from '../mcpClient/client';
-import { ChatProcessor } from '../chats/local';
+import { ChatProcessor } from '../chat';
 
 class AgentAI {
     private mcpClient: McpClient | undefined = undefined;
