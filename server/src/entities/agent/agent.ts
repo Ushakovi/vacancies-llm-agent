@@ -13,20 +13,29 @@ class AgentAI {
     public init = async () => {
         this.mcpClient = new McpClient();
         await this.mcpClient.init();
-        const tools = await this.mcpClient?.getTools();
+        const tools = await this.mcpClient.getTools();
         this.chatProcessor = new ChatProcessor(this.systemPrompt, tools ?? []);
     };
 
     public sendMessage = async (message: string) => {
-        return this.chatProcessor?.sendMessage(message, this.mcpClient);
+        if (!this.chatProcessor) {
+            throw new Error('Chat processor not initialized');
+        }
+        return this.chatProcessor.sendMessage(message, this.mcpClient);
     };
 
     public clearMessages = () => {
-        return this.chatProcessor?.clearMessages();
+        if (!this.chatProcessor) {
+            throw new Error('Chat processor not initialized');
+        }
+        return this.chatProcessor.clearMessages();
     };
 
     public subscribe = (callback: any) => {
-        return this.chatProcessor?.subscribe(callback);
+        if (!this.chatProcessor) {
+            throw new Error('Chat processor not initialized');
+        }
+        return this.chatProcessor.subscribe(callback);
     };
 }
 

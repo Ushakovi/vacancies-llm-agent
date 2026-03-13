@@ -12,7 +12,7 @@ class ChatProcessor {
 
         this.messages.push({
             role: 'user',
-            content: this.systemPrompt,
+            content: this.system,systemPrompt,
         });
 
         this.tools = tools.map((tool) => ({
@@ -47,6 +47,9 @@ class ChatProcessor {
     };
 
     public fetchToModel = async () => {
+        if (!this.llmUrl) {
+            throw new Error('LLM URL not configured');
+        }
         const response = await fetch(this.llmUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -58,6 +61,10 @@ class ChatProcessor {
             }),
         });
 
+        if (!response.ok) {
+            throw new Error(`Failed to fetch from LLM: ${response.statusText}`);
+        }
+
         const result = await response.json();
 
         return result;
@@ -67,8 +74,12 @@ class ChatProcessor {
         answer: any,
         client: McpClient | undefined
     ): Promise<any> => {
+        if (!client) {
+            throw new Error('MCP client not initialized');
+        }
+
         for (const tool of answer.message.tool_calls) {
-            const output = await client?.callTool(
+            const output = await client.callTool(
                 tool.function.name,
                 tool.function.arguments
             );
@@ -96,6 +107,10 @@ class ChatProcessor {
         message: string,
         client: McpClient | undefined
     ) => {
+        if (!client) {
+            throw new Error('MCP client not initialized');
+        }
+
         this.addNewMessage({
             role: 'user',
             content: message,

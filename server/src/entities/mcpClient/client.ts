@@ -8,22 +8,30 @@ class McpClient {
     constructor() {}
 
     public init = async () => {
-        const baseUrl = new URL(this.serverUrl);
+        try {
+            const baseUrl = new URL(this.serverUrl);
 
-        this.client = new Client({
-            name: 'streamable-http-client',
-            version: '1.0.0',
-        });
+            this.client = new Client({
+                name: 'streamable-http-client',
+                version: '1.0.0',
+            });
 
-        const transport = new StreamableHTTPClientTransport(new URL(baseUrl));
+            const transport = new StreamableHTTPClientTransport(new URL(baseUrl));
 
-        await this.client.connect(transport);
+            await this.client.connect(transport);
 
-        console.log('Connected using Streamable HTTP transport');
+            console.log('Connected using Streamable HTTP transport');
+        } catch (error) {
+            console.error('Failed to connect to MCP server:', error);
+            throw error;
+        }
     };
 
     public getTools = async () => {
-        const tools = (await this.client?.listTools())?.tools;
+        if (!this.client) {
+            throw new Error('MCP client not initialized');
+        }
+        const tools = (await this.client.listTools())?.tools;
         return tools;
     };
 
@@ -31,14 +39,15 @@ class McpClient {
         toolName: string,
         toolArgs: Record<string, unknown>
     ) => {
-        if (this.client) {
-            const result = await this.client.callTool({
-                name: toolName,
-                arguments: toolArgs,
-            });
-
-            return result;
+        if (!this.client) {
+            throw new Error('MCP client not initialized');
         }
+        const result = await this.client.callTool({
+            name: toolName,
+            arguments: toolArgs,
+        });
+
+        return result;
     };
 }
 
